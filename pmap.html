@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Pickleball Map</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js"></script>
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoiZ2VvcmdpYWdvdWxkZW4iLCJhIjoiY2x5NDlzcnRlMDA4ZjJsc2N5bjJoeHEzbSJ9.bAGZujTJFz85CDLPVnp8Lg';
+
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/georgiagoulden/cmc3gwtd601uf01sdgfcg1of7',
+    center: [-1.5, 52.5],
+    zoom: 6
+  });
+
+  map.on('load', () => {
+    // Add your vector tileset source
+    map.addSource('pickleball', {
+      type: 'vector',
+      url: 'mapbox://georgiagoulden.9x4diocg'
+    });
+
+    // Add the layer showing your points
+    map.addLayer({
+      id: 'pickleball-layer',
+      type: 'circle',
+      source: 'pickleball',
+      'source-layer': 'map_20-cz5d32', // must match your source layer name exactly
+      paint: {
+        'circle-radius': 6,
+        'circle-color': '#FF5722'
+      }
+    });
+
+    // Add popups on click
+    map.on('click', 'pickleball-layer', (e) => {
+      const props = e.features[0].properties;
+
+      new mapboxgl.Popup()
+        .setLngLat(e.lngLat)
+        .setHTML(`
+          <strong>${props.name || 'Unknown'}</strong><br>
+          Location: ${props.location || 'N/A'}<br>
+          Courts: ${props.courts || 'N/A'}<br>
+          Access: ${props.access || 'N/A'}<br>
+          Club: ${props.Club || 'N/A'}
+        `)
+        .addTo(map);
+    });
+
+    // Change cursor on hover
+    map.on('mouseenter', 'pickleball-layer', () => {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+
+    map.on('mouseleave', 'pickleball-layer', () => {
+      map.getCanvas().style.cursor = '';
+    });
+  });
+</script>
+
+</body>
+</html>
+
+
